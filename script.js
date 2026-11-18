@@ -27,37 +27,68 @@ window.addEventListener('scroll', () => {
     : 'none';
 });
 
-/* ---------- Product filter ---------- */
-const filterBtns   = document.querySelectorAll('.filter-btn');
-const productCards = document.querySelectorAll('.product-card');
+/* ---------- Product filter + Load more ---------- */
+const PAGE_SIZE     = 9;
+const filterBtns     = document.querySelectorAll('.filter-btn');
+const productCards   = Array.from(document.querySelectorAll('.product-card'));
+const loadMoreWrap   = document.getElementById('load-more-wrap');
+const loadMoreBtn    = document.getElementById('load-more-btn');
+const productsEmpty  = document.getElementById('products-empty');
+
+let currentFilter = 'all';
+let visibleCount   = PAGE_SIZE;
+
+function matchingCards(filter) {
+  return productCards.filter(card => filter === 'all' || card.dataset.category === filter);
+}
+
+function renderProducts() {
+  const matched   = matchingCards(currentFilter);
+  const shown     = matched.slice(0, visibleCount);
+  const shownSet  = new Set(shown);
+  const remaining = matched.length - shown.length;
+
+  productCards.forEach(card => {
+    const isShown = shownSet.has(card);
+    card.style.display = isShown ? '' : 'none';
+    if (isShown) {
+      card.style.opacity   = '1';
+      card.style.transform = 'translateY(0)';
+    }
+  });
+
+  // Thông báo khi mục chưa có sản phẩm (vd. Taba)
+  if (productsEmpty) productsEmpty.hidden = matched.length > 0;
+
+  // Hiển thị / ẩn nút "Xem thêm"
+  if (loadMoreWrap) {
+    if (remaining > 0) {
+      loadMoreWrap.hidden = false;
+      if (loadMoreBtn) loadMoreBtn.textContent = 'Xem thêm sản phẩm';
+    } else {
+      loadMoreWrap.hidden = true;
+    }
+  }
+}
 
 filterBtns.forEach(btn => {
   btn.addEventListener('click', () => {
-    // Update active button
     filterBtns.forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-
-    const filter = btn.dataset.filter;
-
-    productCards.forEach(card => {
-      const match = filter === 'all' || card.dataset.category === filter;
-      card.style.transition = 'opacity .3s, transform .3s';
-      if (match) {
-        card.style.opacity    = '1';
-        card.style.transform  = 'scale(1)';
-        card.style.display    = '';
-      } else {
-        card.style.opacity    = '0';
-        card.style.transform  = 'scale(.95)';
-        setTimeout(() => {
-          if (card.dataset.category !== filter && filter !== 'all') {
-            card.style.display = 'none';
-          }
-        }, 300);
-      }
-    });
+    currentFilter = btn.dataset.filter;
+    visibleCount  = PAGE_SIZE;
+    renderProducts();
   });
 });
+
+if (loadMoreBtn) {
+  loadMoreBtn.addEventListener('click', () => {
+    visibleCount += PAGE_SIZE;
+    renderProducts();
+  });
+}
+
+renderProducts();
 
 /* ---------- Scroll-reveal animation ---------- */
 const revealEls = document.querySelectorAll(
