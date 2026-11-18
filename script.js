@@ -1,5 +1,5 @@
 // ===========================
-//  ToyZone – script.js
+//  Beebe.squishy – script.js
 // ===========================
 
 /* ---------- Hamburger menu ---------- */
