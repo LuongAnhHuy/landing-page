@@ -117,30 +117,50 @@ revealEls.forEach(el => {
   observer.observe(el);
 });
 
-/* ---------- "Add to cart" button feedback ---------- */
-document.querySelectorAll('.btn-add').forEach(btn => {
-  btn.addEventListener('click', function () {
-    const original = this.textContent;
-    this.textContent = '✅ Đã thêm!';
-    this.style.background = 'linear-gradient(135deg, #22D3EE, #A855F7)';
-    setTimeout(() => {
-      this.textContent = original;
-      this.style.background = '';
-    }, 1800);
+
+
+/* ---------- Star rating ---------- */
+const stars       = document.querySelectorAll('.star-rating .star');
+const ratingInput = document.getElementById('ratingValue');
+
+stars.forEach(star => {
+  star.addEventListener('mouseover', () => {
+    const val = +star.dataset.value;
+    stars.forEach(s => s.classList.toggle('active', +s.dataset.value <= val));
+    stars.forEach(s => s.textContent = +s.dataset.value <= val ? '★' : '☆');
+  });
+  star.addEventListener('mouseleave', () => {
+    const selected = +(ratingInput?.value || 0);
+    stars.forEach(s => {
+      const active = +s.dataset.value <= selected;
+      s.classList.toggle('active', active);
+      s.textContent = active ? '★' : '☆';
+    });
+  });
+  star.addEventListener('click', () => {
+    const val = +star.dataset.value;
+    if (ratingInput) ratingInput.value = val;
+    stars.forEach(s => {
+      const active = +s.dataset.value <= val;
+      s.classList.toggle('active', active);
+      s.textContent = active ? '★' : '☆';
+    });
   });
 });
 
-/* ---------- Contact form ---------- */
+/* ---------- Feedback form ---------- */
 document.getElementById('orderForm').addEventListener('submit', function (e) {
   e.preventDefault();
   const btn = this.querySelector('button[type="submit"]');
-  btn.textContent = '✅ Gửi thành công! Chúng tớ sẽ liên hệ bạn sớm 💌';
+  btn.textContent = '✅ Cảm ơn feedback của bạn! 💌';
   btn.style.background = 'linear-gradient(135deg, #22C55E, #16A34A)';
   btn.disabled = true;
   setTimeout(() => {
     btn.textContent = 'Gửi ngay 🚀';
     btn.style.background = '';
     btn.disabled = false;
+    if (ratingInput) ratingInput.value = 0;
+    stars.forEach(s => { s.classList.remove('active'); s.textContent = '☆'; });
     this.reset();
   }, 4000);
 });
