@@ -182,6 +182,14 @@ ul { list-style: none; }
   white-space: nowrap;
 }
 .logo span { color: var(--pink); }
+.logo-img {
+  width: 36px;
+  height: 36px;
+  object-fit: cover;
+  border-radius: 8px;
+  vertical-align: middle;
+  margin-right: 6px;
+}
 .nav-links {
   display: flex;
   gap: 8px;
